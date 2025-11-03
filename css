@@ -1,0 +1,89 @@
+*{ /* Vai aplicar esse estilo a todos os elementos da página */
+  margin: 0px; /* Margem externa ao elemento HTML, atua nas 4 margens */
+  padding: 0px; /* Margem interna ao elemento HTML, atua nas 4 margens */
+}
+
+body{
+  /*background: #ff0000; /* Define a cor de fundo do elemento HTML */
+  min-height: 100vh; /* Ocupa altua total da tela  */
+  display: flex; /* Ativa o flexbox e permite que os elementos internos sejam movidos*/
+  flex-direction: column; /* Organiza em colunas */
+  align-items: center; /* Centraliza horizontalemtne */
+  justify-content: center; /*Centraliza verticalmente */
+}
+
+.container{
+  display: flex; /* Ativa o flexbox e permite que os elementos internos sejam movidos*/
+  height: 530px; /* Ocupa a altura total da tela */
+  width: 700px;
+  align-items: center; /* Centraliza horizontalemtne */
+  justify-content: center; /*Centraliza verticalmente */
+  /* background: #297fb4; /* Define a cor de fundo do elemento HTML */
+  /*background: #ffffff; /* Define a cor de fundo do elemento HTML */
+
+  /*background-image: url('https://uploads.onecompiler.io/43qxwkvyg/43u3b8nm9/Fundo.png');*/
+  background-size: cover;
+}
+
+.coluna1{
+  height: 400px; /* Altura */
+  width: 100px; /* Largura */
+  display: flex; /* Ativa o flexbox e permite que os elementos internos sejam movidos*/
+  flex-direction: column; /* Organiza em colunas */
+  align-items: center; /* Centraliza horizontalemtne */
+ /* background: #da8ae5;*/
+}
+
+.coluna2{
+  margin: 20px; /* Margem externa, as 4 com 0px */
+  min-height: 100vh; /* Ocupa a altura total da tela */
+  display: flex; /* Ativa o flexbox */
+  flex-direction: column; /* Trata o body*/
+  align-items: center; /* Centraliza horizontalmente */
+  justify-content: center; /* Centraliza verticalmente */
+}
+
+.coluna3{
+  height: 400px; /* Altura */
+}
+
+.score{
+  background: rgb(120, 120, 255);
+}
+
+canvas{
+  background: rgb(0, 0, 0);
+}
+
+
+.coluna2 canvas {
+  border-top: 4px solid #00c3fa;
+  border-right: 4px solid #fae100;
+  border-bottom: 4px solid #ff3b3b;
+  border-left: 4px solid #30ff30;
+  border-radius: 10px;
+}
+.coluna3 canvas {
+  border-top: 4px solid #ff3b3b;
+  border-right: 4px solid #00c3fa;
+  border-bottom: 4px solid #fae100;
+  border-left: 4px solid #30ff30;
+  border-radius: 10px;
+}
+
+.coluna1 canvas {
+  border-top: 4px solid #ff3b3b;
+  border-right: 4px solid #00c3fa;
+  border-bottom: 4px solid #fae100;
+  border-left: 4px solid #30ff30;
+  border-radius: 10px;
+}
+
+
+
+
+
+
+
+
+
