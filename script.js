@@ -15,15 +15,38 @@ const CORES = [
     "yellow", "yellow", "red", "red"
 ];
 const Chroblocks = [
-    [],
-    [[1,1,0], [1,0,0], [1,1,0]],
-    [[0,2,0], [2,2,2], [0,2,0]],
-    [[3,0,0], [3,0,0], [3,3,3]],
-    [[4,4,4], [0,4,0], [0,4,0]],
-    [[5,5,0], [5,5,0], [5,0,0]],
-    [[6,6,0], [0,6,6], [0,6,0]],
-    [[7,7,0], [0,7,0], [0,7,7]],
-    [[8,0,0], [8,8,0], [8,8,8]]
+    [],[
+    [1,0,0],
+    [0,0,0],
+    [0,0,0]],
+    [
+    [0,2,0],
+    [0,2,0],
+    [0,2,0]],
+    [
+    [3,0,0],
+    [3,0,0],
+    [3,3,0]
+    ],
+    [[4,4,4]
+    ,[0,4,0], 
+     [0,4,0]
+    ],
+    [[8,8,0],
+     [8,8,0],
+     [8,0,0]],
+    [
+      [6,6,0],
+      [0,6,6],
+      [0,6,0]],
+    [
+    [7,7,0],
+    [0,7,0],
+    [0,7,7]
+    ],
+    [[0,5,5],
+     [0,5,0],
+     [5,5,0]]
 ];
 const LIN = 20;
 const COL = 10;
@@ -31,7 +54,6 @@ let jogo = Array.from({ length: LIN }, () => Array(COL).fill(0));
 let BlocoSave = '';
 let posX = 0, posY = 0;
 let ProxBloco = null;
-
 
 // --- FUNÇÕES DE DESENHO (DRAW) ---
 
@@ -56,8 +78,11 @@ function drawTela(){
                 }
             }
         }
+        // Desenha o glitter por cima de todo o resto
+        drawGlitter(chro);
     }
 }
+
 function Colisao(movX, movY, bloco) {
     for (let i = 0; i < bloco.length; i++){
         for (let j = 0; j < bloco[i].length; j++){
@@ -72,6 +97,7 @@ function Colisao(movX, movY, bloco) {
     }
     return true;
 }
+
 function fixaBloco(){
     for (let i = 0; i < BlocoSave.length; i++) {
         for (let j = 0; j < BlocoSave[i].length; j++) {
@@ -89,9 +115,15 @@ function fixaBloco(){
     LinhasCompletas();
     spawnBloco();
 }
+
+// Variável para controlar a velocidade do jogo
+let gameSpeed = 500; // Tempo em milissegundos entre movimentos
+
 function gameLoop() {
     clearTimeout(gameLoopTimeout);
     if (gameOver || isPaused) return; 
+    // Atualiza a lógica do glitter (movimento, criação, remoção)
+    updateGlitter();
     if (Colisao(0, 1, BlocoSave)) {
         posY++;
     }else{
@@ -100,8 +132,9 @@ function gameLoop() {
     }
     drawTela();
     drawScore();
-    gameLoopTimeout = setTimeout(gameLoop, 500);
+    gameLoopTimeout = setTimeout(gameLoop, gameSpeed);
 }
+
 function rotateBlock(){
     const newBlock = [];
     const size = BlocoSave.length;
@@ -115,13 +148,25 @@ function rotateBlock(){
         BlocoSave = newBlock;
     }
 }
+
 document.addEventListener('keydown', function(e){
     if (gameOver || isPaused) return; 
-    if (e.key === 'ArrowLeft' && Colisao(-1, 0, BlocoSave)) posX--;
-    else if (e.key === 'ArrowRight' && Colisao(1, 0, BlocoSave)) posX++;
-    else if (e.key === 'ArrowDown' && Colisao(0, 1, BlocoSave)) posY++;
-    else if (e.key === 'ArrowUp') rotateBlock();
-    drawTela();
+    if (e.key === 'ArrowLeft' && Colisao(-1, 0, BlocoSave)) {
+        posX--;
+        drawTela();
+    }
+    else if (e.key === 'ArrowRight' && Colisao(1, 0, BlocoSave)) {
+        posX++;
+        drawTela();
+    }
+    else if (e.key === 'ArrowDown' && Colisao(0, 1, BlocoSave)) {
+        posY++;
+        drawTela();
+    }
+    else if (e.key === 'ArrowUp') {
+        rotateBlock();
+        drawTela();
+    }
 });
 
 function spawnBloco(){
@@ -140,6 +185,7 @@ function spawnBloco(){
         return;
     }
 }
+
 function drawNext(){
     const canvas = document.querySelector('.coluna3 canvas');
     const ctx = canvas.getContext('2d');
@@ -216,6 +262,11 @@ function reiniciarJogo(){
     gameOver = false; 
     isPaused = false;
     
+    // Reseta o estado do glitter
+    isRainingGlitter = false;
+    glitterStartTime = 0;
+    glitterParticles = []; // Limpa todas as partículas da tela
+    
     document.getElementById('pauseScreen').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('fundo').style.filter = 'none';
@@ -234,12 +285,24 @@ function LinhasCompletas(){
     for (let y = LIN - 1; y >= 0; y--){
         if (jogo[y].every(cell => cell !== 0)){
             score += 100;
+            
+            // Ativa o glitter quando o score ultrapassa 100
+            if (score >= 100) {
+                startGlitter();
+            }
+            
+            // Aumenta a velocidade do jogo a cada linha completa
+            if (gameSpeed > 100) {
+                gameSpeed -= 10; // Aumenta a velocidade (diminui o tempo)
+            }
+            
             jogo.splice(y, 1);
             jogo.unshift(Array(COL).fill(0));
             y++;
         }
     }
 }
+
 function drawScore(){
     const scoreCanvas = document.getElementById('CanvasPontos'); 
     const ctx = scoreCanvas.getContext('2d'); 
@@ -286,8 +349,6 @@ function initGame() {
     gameLoop();
     startTimer(); 
 }
-
-
 
 document.getElementById('startGameButton').onclick = function() {
     const nameError = document.getElementById('nameError'); 
@@ -339,21 +400,6 @@ closeTutorialButton.addEventListener('click', (e) => {
 tutorialDialog.addEventListener('cancel', (e) => {
     e.preventDefault();
 });
-
-
-document.addEventListener('keydown', function(e){
-    if (gameOver || isPaused) return; 
-    if (e.key === 'ArrowLeft' && Colisao(-1, 0, BlocoSave)) posX--;
-    else if (e.key === 'ArrowRight' && Colisao(1, 0, BlocoSave)) posX++;
-    else if (e.key === 'ArrowDown' && Colisao(0, 1, BlocoSave)) posY++;
-    else if (e.key === 'ArrowUp') rotateBlock();
-    drawTela();
-});
-
-// Desenhos iniciais (antes do jogo começar)
-drawHighScores();
-drawTimer(); 
-
 
 // --- PEGANDO OS ELEMENTOS ---
 const pauseIcon = document.getElementById('pauseIcon');
@@ -461,7 +507,6 @@ closeDevModalButton.addEventListener('click', (e) => {
     pauseScreen.classList.remove('hidden'); 
 });
 
-
 restartGameOverButton.addEventListener('click', (e) => {
     e.preventDefault();
     reiniciarJogo();
@@ -483,3 +528,90 @@ volumeSlider.addEventListener('input', handleVolumeChange);
 muteButton.addEventListener('click', toggleMute);
 
 updateMuteButton();
+
+// --- GLITTER VARIABLES ---
+let isRainingGlitter = false;
+let glitterParticles = [];
+let glitterStartTime = 0;
+
+const GLITTER_CORES = ["pink", "light pink"];
+
+// --- FUNÇÕES DE GLITTER ---
+
+/**
+ * Cria uma única partícula de glitter em uma posição X aleatória no topo da tela.
+ */
+function createGlitterParticle() {
+    const canvas = document.getElementById('CanvasJogo');
+    return {
+        x: Math.random() * canvas.width,
+        y: -10, // Começa um pouco acima da tela
+        vx: (Math.random() - 0.5) * 1, // Leve movimento horizontal
+        vy: Math.random() * 18 + 12, // Velocidade de queda mais rápida
+        size: Math.random() * 4 + 8, // Tamanho (2px a 5px)
+        color: GLITTER_CORES[Math.floor(Math.random() * GLITTER_CORES.length)],
+        opacity: 1.0
+    };
+}
+
+/**
+ * Inicia a chuva de glitter
+ */
+function startGlitter() {
+    isRainingGlitter = true;
+    glitterStartTime = Date.now();
+}
+
+/**
+ * Atualiza a posição e a opacidade de todas as partículas de glitter.
+ * Remove partículas que saem da tela ou ficam invisíveis.
+ * Cria novas partículas se a chuva estiver ativa.
+ */
+function updateGlitter() {
+    // Verifica se o glitter deve parar após 30 segundos
+    if (isRainingGlitter && glitterStartTime > 0) {
+        const currentTime = Date.now();
+        const elapsedSeconds = (currentTime - glitterStartTime) / 1000;
+        if (elapsedSeconds >= 20) {
+            isRainingGlitter = false;
+            glitterStartTime = 0;
+        }
+    }
+
+    // Se a chuva estiver ativa, há uma chance de criar novas partículas
+    if (isRainingGlitter && Math.random() < 0.25) { // Ajuste 0.25 para mais/menos glitter
+        glitterParticles.push(createGlitterParticle());
+    }
+
+    // Atualiza cada partícula (loop reverso para facilitar a remoção)
+    for (let i = glitterParticles.length - 1; i >= 0; i--) {
+        let p = glitterParticles[i];
+        
+        // Atualiza posição
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Diminui a opacidade gradualmente
+        p.opacity -= 0.01; 
+
+        // Remove a partícula se ela saiu da tela ou ficou invisível
+        if (p.opacity <= 0 || p.y > document.getElementById('CanvasJogo').height) {
+            glitterParticles.splice(i, 1);
+        }
+    }
+}
+
+/**
+ * Desenha todas as partículas de glitter no canvas principal.
+ */
+function drawGlitter(ctx) {
+    for (let p of glitterParticles) {
+        ctx.save(); // Salva o estado atual do canvas
+        ctx.globalAlpha = p.opacity; // Aplica a opacidade da partícula
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size/2, 0, Math.PI * 2); // Desenha um círculo
+        ctx.fill();
+        ctx.restore(); // Restaura o estado do canvas
+    }
+}
